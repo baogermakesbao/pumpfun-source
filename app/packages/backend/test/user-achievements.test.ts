@@ -260,6 +260,12 @@ test("malformed datasets fail at construction", () => {
     ["duplicate unlock", (d) => { user(d).achievements[1] = structuredClone(unlock(d, 0)); }],
     ["unlock after snapshot", (d) => { unlock(d, 0).unlockedAt = "2026-10-29T00:00:00.001Z"; }],
     ["unlock without ms", (d) => { unlock(d, 0).unlockedAt = "2026-01-02T03:04:05Z"; }],
+    // Shaped like toISOString output, but not a real instant.
+    ["impossible observedAt", (d) => { d.observedAt = "2026-10-32T00:00:00.000Z"; }],
+    ["impossible unlock day", (d) => { unlock(d, 0).unlockedAt = "2026-02-30T00:00:00.000Z"; }],
+    ["impossible unlock hour", (d) => { unlock(d, 0).unlockedAt = "2026-01-02T24:00:00.000Z"; }],
+    ["impossible call day", (d) => { callout(d).calledOutAt = "2026-02-29T00:00:00.000Z"; }],
+    ["impossible period start", (d) => { finishes(d)[1].periodStart = "2026-08-01T00:60:00.000Z"; }],
     ["NaN value", (d) => { unlock(d, 0).value = Number.NaN; }],
     ["zero holders", (d) => { unlock(d, 0).holderCount = 0; }],
     ["fractional holders", (d) => { unlock(d, 0).holderCount = 1.5; }],
