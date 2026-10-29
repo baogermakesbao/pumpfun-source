@@ -161,6 +161,8 @@ test("malformed datasets fail at construction", () => {
     ["version", (d) => { d.schemaVersion = 2; }],
     ["source", (d) => { d.dataSource = "live"; }],
     ["non-canonical observedAt", (d) => { d.observedAt = "2026-10-29T00:00:00Z"; }],
+    // Shaped like toISOString output; Date.parse silently rolls it over to the next day.
+    ["rolled-over observedAt", (d) => { d.observedAt = "2026-10-28T24:00:00.000Z"; }],
     ["boards array", (d) => { d.boards = []; }],
     ["extra board key", (d) => { d.boards.MayhemMint.extra = 1; }],
     ["future snapshot", (d) => { d.boards.MayhemMint.updatedAt = nowMs + 1; }],
