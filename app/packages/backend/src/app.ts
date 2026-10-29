@@ -9,6 +9,8 @@ import type { PayoutsStore } from "./payouts-store.js";
 import { registerPayoutRoutes, PAYOUTS_NATIVE_ROUTES } from "./payouts-routes.js";
 import type { UserTradesStore } from "./user-trades-store.js";
 import { registerUserTradesRoutes, USER_TRADES_NATIVE_ROUTES } from "./user-trades-routes.js";
+import type { MintPositionsStore } from "./mint-positions-store.js";
+import { registerMintPositionsRoutes, MINT_POSITIONS_NATIVE_ROUTES } from "./mint-positions-routes.js";
 import { apiKeyGate } from "./api-key-gate.js";
 import { registerSearchResolveRoutes, SEARCH_RESOLVE_NATIVE_ROUTES } from "./search-resolve-routes.js";
 import { createHash } from "node:crypto";
@@ -318,6 +320,8 @@ export interface BuildAppOptions {
   payoutsStore?: PayoutsStore;
   /** Explicit operator-owned spot trade history; absent retains fixture/501 behavior. */
   userTradesStore?: UserTradesStore;
+  /** Explicit supplied spot mint holders; absent preserves fixture/501 behavior. */
+  mintPositionsStore?: MintPositionsStore;
   /** Explicit local/CLI-only capability; absent by default, independent of developer auth. */
   localMedia?: LocalMediaOptions;
   /** Override the user store (for tests). */
@@ -412,6 +416,7 @@ export function buildApp(fixtures: Fixture[] = [], opts: BuildAppOptions = {}) {
     if (opts.positionsStore) registerPositionsRoutes(native, opts.positionsStore);
     if (opts.payoutsStore) registerPayoutRoutes(native, opts.payoutsStore);
     if (opts.userTradesStore) registerUserTradesRoutes(native, opts.userTradesStore);
+    if (opts.mintPositionsStore) registerMintPositionsRoutes(native, opts.mintPositionsStore);
   });
 
   // Routing recognizes documented paths; no fabricated domain responses or live proxy fallback.
@@ -429,7 +434,8 @@ export function buildApp(fixtures: Fixture[] = [], opts: BuildAppOptions = {}) {
         (opts.calloutsStore && CALLOUTS_NATIVE_ROUTES.has(`${method.toUpperCase()} ${path}`)) ||
         (opts.positionsStore && POSITIONS_NATIVE_ROUTES.has(`${method.toUpperCase()} ${path}`)) ||
         (opts.payoutsStore && PAYOUTS_NATIVE_ROUTES.has(`${method.toUpperCase()} ${path}`)) ||
-        (opts.userTradesStore && USER_TRADES_NATIVE_ROUTES.has(`${method.toUpperCase()} ${path}`))) continue;
+        (opts.userTradesStore && USER_TRADES_NATIVE_ROUTES.has(`${method.toUpperCase()} ${path}`)) ||
+        (opts.mintPositionsStore && MINT_POSITIONS_NATIVE_ROUTES.has(`${method.toUpperCase()} ${path}`))) continue;
       app.route({
         method: method.toUpperCase() as "GET",
         url: "/v1" + path.replace(/\{([^}]+)\}/g, ":$1"),
