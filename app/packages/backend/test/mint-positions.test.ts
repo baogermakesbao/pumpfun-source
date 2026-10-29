@@ -354,6 +354,8 @@ test("malformed datasets fail at construction", () => {
     ["version", (d) => { d.schemaVersion = 2; }],
     ["source", (d) => { d.dataSource = "live"; }],
     ["non-canonical observedAt", (d) => { d.observedAt = "2026-10-29T00:00:00Z"; }],
+    // Shaped like toISOString output; Date.parse silently rolls it over to the next day.
+    ["rolled-over observedAt", (d) => { d.observedAt = "2026-10-28T24:00:00.000Z"; }],
     ["extra mint key", (d) => { d.mints.MintA.extra = 1; }],
     ["extra holder key", (d) => { open(d)[0].extra = 1; }],
     ["extra row key", (d) => { open(d)[0].row.receiptBasisUsd = 1; }],
