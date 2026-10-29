@@ -5,6 +5,7 @@ import { loadCalloutsStore } from './callouts-store.js';
 import { loadPositionsStore } from './positions-store.js';
 import { loadPayoutsStore } from './payouts-store.js';
 import { loadUserTradesStore } from './user-trades-store.js';
+import { loadPortfolioSummaryStore } from './portfolio-summary-store.js';
 import { startWithLocalMedia } from './local-media-runtime.js';
 import { loadPortfolioBalancesStore } from './portfolio-balances-store.js';
 // The sibling startup loaders (callouts, positions, portfolio balances) all
@@ -19,8 +20,9 @@ const calloutDiscussionsStore = process.env.CALLOUT_DISCUSSIONS_FILE ? loadCallo
 const positionsStore = process.env.POSITIONS_FILE ? loadPositionsStore(process.env.POSITIONS_FILE) : undefined;
 const payoutsStore = loadPayoutsStore(process.env.PAYOUTS_FILE);
 const userTradesStore = process.env.TRADES_FILE ? loadUserTradesStore(process.env.TRADES_FILE) : undefined;
+const portfolioSummaryStore = loadPortfolioSummaryStore(process.env.PORTFOLIO_SUMMARY_FILE);
 const app = await startWithLocalMedia(process.env, async (localMedia) => {
-  const app = buildApp(fixtures, { calloutsStore, calloutDiscussionsStore, positionsStore, payoutsStore, userTradesStore, portfolioBalancesStore, localMedia });
+  const app = buildApp(fixtures, { calloutsStore, calloutDiscussionsStore, positionsStore, payoutsStore, userTradesStore, portfolioSummaryStore, portfolioBalancesStore, localMedia });
   try {
     await app.listen({ host: process.env.HOST ?? '127.0.0.1', port: Number(process.env.PORT ?? 3001) });
   } catch (startupError) {
