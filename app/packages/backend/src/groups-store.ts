@@ -1,4 +1,4 @@
-import { closeSync, constants, fstatSync, openSync, readFileSync, readSync } from "node:fs";
+import { closeSync, constants, fstatSync, lstatSync, openSync, readFileSync, readSync } from "node:fs";
 import { validateAgainstSchema, type SchemaNode, type SchemaRoot } from "./schema-validator.js";
 
 export type GroupPnlPeriod = "1d" | "1w" | "1m";
@@ -311,12 +311,20 @@ export class GroupsStore {
 }
 
 /** Startup-only, bounded regular-file read. No writes, reloads or network. */
-export function loadGroupsStore(path: string | undefined): GroupsStore | undefined {
+export function loadGroupsStore(
+  path: string | undefined,
+  noFollow: number | undefined = constants.O_NOFOLLOW,
+): GroupsStore | undefined {
   if (!path) return undefined;
-  const fd = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
+  // O_NOFOLLOW is undefined on Windows, so the open flag alone cannot reject a
+  // symlinked path there: inspect the path itself and bind the descriptor to it.
+  const linked = lstatSync(path, { bigint: true });
+  if (linked.isSymbolicLink() || !linked.isFile()) invalid("file type/size");
+  const fd = openSync(path, constants.O_RDONLY | (noFollow ?? 0) | (constants.O_NONBLOCK ?? 0));
   try {
-    const stat = fstatSync(fd);
-    if (!stat.isFile() || stat.size > MAX_FILE_BYTES) invalid("file type/size");
+    const stat = fstatSync(fd, { bigint: true });
+    if (!stat.isFile() || stat.size > BigInt(MAX_FILE_BYTES)) invalid("file type/size");
+    if (stat.dev !== linked.dev || stat.ino !== linked.ino) invalid("file identity");
     const buffer = Buffer.alloc(MAX_FILE_BYTES + 1);
     let size = 0;
     while (size < buffer.length) {

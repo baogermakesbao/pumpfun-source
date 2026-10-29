@@ -310,6 +310,10 @@ test("the startup loader reads only a bounded regular file", () => {
     const link = join(dir, "link.json");
     symlinkSync(file, link);
     assert.throws(() => loadGroupsStore(link));
+    // Where O_NOFOLLOW is unavailable (Windows), the symlink is still refused.
+    assert.throws(() => loadGroupsStore(link, 0), /file type/);
+    assert.throws(() => loadGroupsStore(dir, 0), /file type/);
+    assert.ok(loadGroupsStore(file, 0));
     writeFileSync(file, Buffer.from([0x7b, 0xff, 0x7d]));
     assert.throws(() => loadGroupsStore(file), TypeError);
   } finally {
