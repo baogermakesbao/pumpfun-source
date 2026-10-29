@@ -248,6 +248,8 @@ test("malformed datasets fail at construction", () => {
     ["future boards", (d) => { d.boardsBuiltAtMs = nowMs + 1; }],
     ["generated before boards", (d) => { d.generatedAtMs = d.boardsBuiltAtMs - 1; }],
     ["bad observedAt", (d) => { d.observedAt = "yesterday"; }],
+    // Shaped like toISOString output; Date.parse silently rolls it over to the next day.
+    ["rolled-over observedAt", (d) => { d.observedAt = "2026-10-28T24:00:00.000Z"; }],
     ["bad source", (d) => { d.dataSource = "upstream"; }],
   ];
   for (const [label, mutate] of cases) {
