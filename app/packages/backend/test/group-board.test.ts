@@ -216,6 +216,8 @@ test("malformed datasets fail at construction", () => {
     ["sparse rows", (d) => { d.boards.daily.rows = new Array(2); }],
     ["bad source", (d) => { d.dataSource = "upstream"; }],
     ["bad observedAt", (d) => { d.observedAt = "2026-10-29"; }],
+    // Shaped like toISOString output; Date.parse silently rolls it over to the next day.
+    ["rolled-over observedAt", (d) => { d.observedAt = "2026-10-28T24:00:00.000Z"; }],
     ["extra root key", (d) => { d.extra = true; }],
   ];
   for (const [label, mutate] of cases) {
