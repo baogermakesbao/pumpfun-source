@@ -265,6 +265,8 @@ test("malformed datasets fail at construction", () => {
     ["bad profile kind", (d) => { d.groups[0].members[0].profile.kind = "BOT"; }],
     ["future createdAt", (d) => { d.groups[0].members[0].createdAt = "2026-10-29T00:00:00.001Z"; }],
     ["non-canonical createdAt", (d) => { d.groups[0].members[0].createdAt = "2026-10-01"; }],
+    // Shaped like toISOString output; Date.parse silently rolls it over to the next day.
+    ["rolled-over createdAt", (d) => { d.groups[0].members[0].createdAt = "2026-09-30T24:00:00.000Z"; }],
     ["extra member key", (d) => { d.groups[0].members[0].inCompetition = true; }],
     ["row for non-member", (d) => { d.groups[0].pnlFolds["1d"].rows[0].userId = "stranger"; }],
     ["row for invited member", (d) => {
