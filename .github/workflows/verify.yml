@@ -37,6 +37,9 @@ jobs:
               python -B research/tooling-analysis-encoding-20261030/test_verify.py
               python -B reconstruction/tooling/roadmap-manifest-members/test_verify.py
               python -B reconstruction/tooling/deep-analysis-output-links/test_verify.py
+          - suite: amm-multi-hop-packets
+            commands: |
+              python -B research/amm-multi-hop-images/test_packets.py
           - suite: fastbuild-staging
             commands: |
               python -I -B tests/test_fastbuild_stage.py
