@@ -6,7 +6,7 @@
   attempts.py grep TEXT                     attempts/notes whose hypothesis/text contains TEXT
   attempts.py approaches                    distinct approach tags with counts and best distance
   attempts.py seen FILE                     was this exact sell.rs already built? (by sha256)
-  attempts.py note --lane L --approach A --kind finding|dead-end|idea|target --text "..." [--data JSON]
+  attempts.py note --lane L --approach A --kind finding|dead-end|idea|target|prior --text "..." [--data JSON]
 
 Notes record analysis results that are not builds (dead ends, IR targets, mechanisms),
 so later waves do not repeat them.
@@ -25,6 +25,11 @@ from sell_score import SCORE_VERSION
 SWARM = Path(os.environ.get('AMM_SELL_SWARM', Path(__file__).resolve().parent.parent)).resolve()
 LOG = SWARM / 'ATTEMPTS.jsonl'
 LOCK = SWARM / '.attempts.lock'
+
+# The kinds a note may carry. Keep this the single source for both the `--kind`
+# choices and the usage docstring above so the self-documenting help can never
+# list fewer kinds than the CLI actually accepts.
+NOTE_KINDS = ('finding', 'dead-end', 'idea', 'target', 'prior')
 
 
 def entries():
@@ -55,7 +60,7 @@ def main():
     s = sub.add_parser('seen'); s.add_argument('file')
     n = sub.add_parser('note')
     n.add_argument('--lane', required=True); n.add_argument('--approach', required=True)
-    n.add_argument('--kind', required=True, choices=['finding', 'dead-end', 'idea', 'target', 'prior'])
+    n.add_argument('--kind', required=True, choices=NOTE_KINDS)
     n.add_argument('--text', required=True); n.add_argument('--data')
     a = p.parse_args()
     es = entries()

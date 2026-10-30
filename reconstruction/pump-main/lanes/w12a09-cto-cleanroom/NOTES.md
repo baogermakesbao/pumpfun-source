@@ -24,7 +24,8 @@ the same address in both binaries, because both unmatched windows keep their siz
 lines (`LINE n`), error-code immediates (`err n`), `.rodata` strings named by `lddw` (msg! texts,
 seeds) and `.data.rel.ro` pointers. On main the event-stream ratio is 0.7883 (273 orig events, 275 ours):
 the call/error skeleton is almost the same; the byte ratio is dominated by the frame.
-`tools/capture_ir.py` + `tools/oracle.sh` are the lane's IR capture and `llc` oracle (experiments only).
+Worker-specific IR capture and `llc` runners are omitted from this packet; the
+portable read-only outline helper and the measured structural notes are retained.
 
 ## Outline of the original (offsets relative to 0x22a10)
 
@@ -94,8 +95,9 @@ Each `error!()` site writes the `From::from` result to its own 16-byte slot (`ad
 In the original the three `else`-arm target checks (306, 307, 312) are the **deepest** error slots, after
 the sweep's 719, in reverse line order, while the other eight validate errors form one shallow run
 (284, 289, 298, 296, 330, 338, 334, 326). On main the deep group is 296, 326, 334 instead and 306/307/312
-sit inside the shallow run. Frame-index order follows alloca order, so the original's target
-resolution (306/307/312) is in a different scope or helper than the other validate checks.
+sit inside the shallow run. This observed slot grouping is consistent with a distinct scope or helper for
+target resolution (306/307/312). It is a reconstruction hypothesis: optimized
+stack layout alone does not prove source scope or alloca order.
 
 ### R2-R9 (orig) in brief
 
@@ -135,5 +137,5 @@ resolution (306/307/312) is in a different scope or helper than the other valida
 
 Ledger rows already cover S1 (x2-cto-new-option-early-by-value, y1-cto-spill: rejected), S3/S6
 (`unwrap_or(false)` variants), S5 (w9r1-admincto-relocs t27-t30, w10r1-admincto-region2of6 tree/skip),
-S7 (`296 inside holder arm`, #2370), S8. What is new here is the error-slot order, which ties
-306/307/312 to a separate scope.
+S7 (`296 inside holder arm`, #2370), S8. What is new here is the observed error-slot grouping, which suggests a separate
+scope for 306/307/312 and provides a concrete hypothesis for subsequent source trials.
