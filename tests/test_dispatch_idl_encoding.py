@@ -95,7 +95,13 @@ class DispatchIdlEncodingTests(unittest.TestCase):
                         and call.func.attr == "read_text" and isinstance(call.func.value, ast.Name)
                         and call.func.value.id in ("idl", "idl_path")):
                     call.keywords = [item for item in call.keywords if item.arg != "encoding"]
-            digest = hashlib.sha256(ast.dump(node, include_attributes=False).encode()).hexdigest()
+            # Python 3.12 added FunctionDef.type_params and 3.13 hides empty
+            # fields; normalise both so the reviewed digests hold on any host.
+            for item in ast.walk(node):
+                if getattr(item, "type_params", None) == []:
+                    del item.type_params
+            options = {"show_empty": True} if sys.version_info >= (3, 13) else {}
+            digest = hashlib.sha256(ast.dump(node, include_attributes=False, **options).encode()).hexdigest()
             self.assertEqual(digest, row["beforeLoaderAstSha256"], path)
             self.assertEqual(digest, row["afterLoaderAstWithoutEncodingSha256"], path)
 
