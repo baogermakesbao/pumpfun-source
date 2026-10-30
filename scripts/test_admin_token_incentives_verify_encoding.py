@@ -84,13 +84,13 @@ class AdminTokenIncentivesVerifyEncodingTests(unittest.TestCase):
 
     def test_bare_load_fails_and_pinned_load_succeeds_under_posix_locale(self):
         bare = run_hostile_locale(
-            "import pathlib; pathlib.Path('evidence/upstream/pump.json').read_text()"
+            f"import pathlib; pathlib.Path({str(IDL)!r}).read_text()"
         )
         self.assertNotEqual(bare.returncode, 0)
         self.assertIn("UnicodeDecodeError", bare.stderr)
         pinned = run_hostile_locale(
             "import pathlib, json; "
-            "json.loads(pathlib.Path('evidence/upstream/pump.json')"
+            f"json.loads(pathlib.Path({str(IDL)!r})"
             ".read_text(encoding='utf-8'))"
         )
         self.assertEqual(pinned.returncode, 0, pinned.stderr)
