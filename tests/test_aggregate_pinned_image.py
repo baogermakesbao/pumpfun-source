@@ -30,11 +30,11 @@ def pin_lines(tree):
 
 
 def launch_calls(tree):
-    """Calls that start a suite: subprocess.run or the bounded compiler runner.
+    """Calls that start a suite: subprocess.run or a bounded process runner.
 
-    pump_validate_parallel.py launches through build_process.run_compiler so the
-    suite gets an explicit process-group deadline; the other aggregates call
-    subprocess.run directly. Both are suite launches for this check.
+    pump_validate_parallel.py launches through build_process.run_compiler and the
+    serial aggregates through serial_suite_process.run_suite_process, so each
+    suite gets an explicit process-group deadline. All are suite launches here.
     """
     calls = []
     for node in ast.walk(tree):
@@ -44,7 +44,7 @@ def launch_calls(tree):
         if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name):
             if func.value.id == "subprocess" and func.attr == "run":
                 calls.append(node)
-        elif isinstance(func, ast.Name) and func.id == "run_compiler":
+        elif isinstance(func, ast.Name) and func.id in ("run_compiler", "run_suite_process"):
             calls.append(node)
     return calls
 
